@@ -21,6 +21,8 @@ func TestNextToken(t *testing.T) {
 	} else {
 		return false;
 	}
+	10==0;
+	5!=0;
 	`
 
 	tests := []struct {
@@ -80,6 +82,14 @@ func TestNextToken(t *testing.T) {
 		{token.FALSE, "false"},
 		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},
+		{token.INT, "10"},
+		{token.EQ, "=="},
+		{token.INT, "0"},
+		{token.SEMICOLON, ";"},
+		{token.INT, "5"},
+		{token.NOT_EQ, "!="},
+		{token.INT, "0"},
+		{token.SEMICOLON, ";"},
 	}
 
 	l := New(input)
