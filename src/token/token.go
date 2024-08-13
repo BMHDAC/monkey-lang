@@ -45,6 +45,8 @@ const (
 	SLASH     = "/"
 	LT        = "<"
 	RT        = ">"
+	EQ        = "=="
+	NOT_EQ    = "!="
 	// Identifiers
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
