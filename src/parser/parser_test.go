@@ -8,20 +8,22 @@ import (
 
 func TestLetStatement(t *testing.T) {
 	input := `
-		let x = 5; 
+		let x = 5;
 		let y = 10;
-		let foobar = 88391;
+		let foobar = 8472;
 	`
 
 	l := lexer.New(input)
 	p := New(l)
 
 	program := p.ParseProgram()
+
 	if program == nil {
-		t.Fatalf("ParseProgram() returned nil")
+		t.Fatalf("ParseProgram() returned: nil")
 	}
+
 	if len(program.Statement) != 3 {
-		t.Fatalf("program.Statement does not contain 3 statements, got =%d", len(program.Statement))
+		t.Fatalf("program.Statement: Wrong number of statement. Expected 3, got: %d", len(program.Statement))
 	}
 
 	tests := []struct {
@@ -33,8 +35,9 @@ func TestLetStatement(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		stmt := program.Statement[i]
-		if !testLetStatement(t, stmt, tt.expectedIdentifier) {
+		statement := program.Statement[i]
+
+		if !testLetStatement(t, statement, tt.expectedIdentifier) {
 			return
 		}
 	}
@@ -42,22 +45,25 @@ func TestLetStatement(t *testing.T) {
 
 func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "let" {
-		t.Errorf("s.TokenLiteral() not `let`, got %q", s.TokenLiteral())
+		t.Errorf("s.TokenLiteral() returned: %q, expected: `let`", s.TokenLiteral())
 		return false
 	}
 
-	letStmt, ok := s.(*ast.LetStatement)
+	stm, ok := s.(*ast.LetStatement)
 	if !ok {
-		t.Errorf("S not *ast.LetStatement, got %T", s)
-		return false
-	}
-	if letStmt.Name.Value != name {
-		t.Errorf("letStmt.Name.Value not %s. Got %s", name, letStmt.Name.Value)
+		t.Errorf("s not *ast.LetStatement, got %T", s)
 		return false
 	}
 
-	if letStmt.Name.TokenLiteral() != name {
-		t.Errorf("s.Name not `%s`. Got %s", name, letStmt.Name)
+	if stm.Name.Value != name {
+		t.Errorf("stm.Name.Value returned: %s. Expected: %s", stm.Name.Value, name)
+		return false
 	}
+
+	if stm.Name.TokenLiteral() != name {
+		t.Errorf("stm.Name.TokenLiteral() returned: %s. Expected: %s", stm.Name, name)
+		return false
+	}
+
 	return true
 }

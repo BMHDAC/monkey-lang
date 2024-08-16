@@ -19,6 +19,7 @@ type Expression interface {
 type LetStatement struct {
 	Token token.Token
 	Name  *Identifier
+	Value Expression
 }
 
 func (ls *LetStatement) statementNode() {}
