@@ -22,8 +22,8 @@ func TestLetStatement(t *testing.T) {
 		t.Fatalf("ParseProgram() returned: nil")
 	}
 
-	if len(program.Statement) != 3 {
-		t.Fatalf("program.Statement: Wrong number of statement. Expected 3, got: %d", len(program.Statement))
+	if len(program.Statements) != 3 {
+		t.Fatalf("program.Statement: Wrong number of statement. Expected 3, got: %d", len(program.Statements))
 	}
 
 	tests := []struct {
@@ -35,7 +35,7 @@ func TestLetStatement(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		statement := program.Statement[i]
+		statement := program.Statements[i]
 
 		if !testLetStatement(t, statement, tt.expectedIdentifier) {
 			return
