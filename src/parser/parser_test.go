@@ -11,6 +11,7 @@ func TestLetStatement(t *testing.T) {
 		let x = 5;
 		let y = 10;
 		let foobar = 8472;
+		return x;
 	`
 
 	l := lexer.New(input)
@@ -51,6 +52,7 @@ func checkParseErrors(t *testing.T, p *Parser) {
 		return
 	}
 
+	// @@@
 	t.Errorf("parser has  %d erros", len(errors))
 	for _, error := range errors {
 		t.Errorf("Parser errors: %q", error)
