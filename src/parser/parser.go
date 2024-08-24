@@ -24,7 +24,10 @@ func New(l *lexer.Lexer) *Parser {
 	return p
 }
 
-func (p *Parser) nextToken() {}
+func (p *Parser) nextToken() {
+	p.curToken = p.peekToken
+	p.peekToken = p.l.NextToken()
+}
 
 func (p *Parser) parseProgram() *ast.Program {
 	program := &ast.Program{}
@@ -35,6 +38,7 @@ func (p *Parser) parseProgram() *ast.Program {
 		if stm != nil {
 			program.Statements = append(program.Statements, stm)
 		}
+		p.nextToken()
 	}
 	return program
 }
