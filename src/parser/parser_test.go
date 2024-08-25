@@ -8,9 +8,9 @@ import (
 
 func TestLetStatement(t *testing.T) {
 	input := `
-    let a 0;
-    let = 10;
-    let 696969;
+    let a = 0;
+    let b = 10;
+    let foobar = 6969;
   `
 
 	l := lexer.New(input)
@@ -23,8 +23,8 @@ func TestLetStatement(t *testing.T) {
 		t.Fatalf("parseProgram() returned nil")
 	}
 
-	if len(program.Statements) != 4 {
-		t.Fatalf("Got %d statements, expected: %d", len(program.Statements), 4)
+	if len(program.Statements) != 3 {
+		t.Fatalf("Got %d statements, expected: %d", len(program.Statements), 3)
 	}
 
 	tests := []struct {
@@ -32,8 +32,7 @@ func TestLetStatement(t *testing.T) {
 	}{
 		{"a"},
 		{"b"},
-		{"c"},
-		{"you_suck"},
+		{"foobar"},
 	}
 
 	for i, tt := range tests {
@@ -42,6 +41,36 @@ func TestLetStatement(t *testing.T) {
 			return
 		}
 	}
+}
+
+func TestReturnStatement(t *testing.T) {
+	input := `
+    return a; 
+    return b;
+    return foobar;
+  `
+
+	l := lexer.New(input)
+	p := New(l)
+
+	program := p.parseProgram()
+	checkParserError(t, p)
+
+	if len(program.Statements) != 3 {
+		t.Fatalf("Got %d statements, expected %d", len(program.Statements), 3)
+	}
+
+	for _, stm := range program.Statements {
+		rtStm, ok := stm.(*ast.ReturnStatement)
+		if !ok {
+			t.Errorf("Statement is not return statement, got %T instead", stm)
+			continue
+		}
+		if rtStm.TokenLiteral() != "return" {
+			t.Errorf("rtStm.TokenLiteral() not 'return', got %s instead", rtStm.TokenLiteral())
+		}
+	}
+
 }
 
 func testLetStatement(t *testing.T, statement ast.Statement, name string) bool {
