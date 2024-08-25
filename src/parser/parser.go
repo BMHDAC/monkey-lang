@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"monkey/src/ast"
 	"monkey/src/lexer"
 	"monkey/src/token"
@@ -9,13 +10,16 @@ import (
 type Parser struct {
 	l *lexer.Lexer
 
+	errors []string
+
 	curToken  token.Token
 	peekToken token.Token
 }
 
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
-		l: l,
+		l:      l,
+		errors: []string{},
 	}
 
 	p.nextToken()
@@ -52,7 +56,7 @@ func (p *Parser) parseStatement() ast.Statement {
 	}
 }
 
-func (p *Parser) parseLetStatement() ast.Statement {
+func (p *Parser) parseLetStatement() *ast.LetStatement {
 	stm := &ast.LetStatement{
 		Token: p.curToken,
 	}
@@ -64,6 +68,10 @@ func (p *Parser) parseLetStatement() ast.Statement {
 	stm.Name = &ast.Identifier{
 		Token: p.curToken,
 		Value: p.curToken.Literal,
+	}
+
+	if !p.expectPeek(token.ASSIGN) {
+		return nil
 	}
 
 	for !p.curTokenIs(token.SEMICOLON) {
@@ -86,6 +94,16 @@ func (p *Parser) expectPeek(token token.TokenType) bool {
 		p.nextToken()
 		return true
 	} else {
+		p.peekError(token)
 		return false
 	}
+}
+
+func (p *Parser) Errors() []string {
+	return p.errors
+}
+
+func (p *Parser) peekError(token token.TokenType) {
+	msg := fmt.Sprintf("Expect token to be %s, got %s instead", token, p.peekToken.Type)
+	p.errors = append(p.errors, msg)
 }
