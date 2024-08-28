@@ -7,6 +7,11 @@ import (
 	"monkey/src/token"
 )
 
+type (
+	prefixParseFn func() ast.Expression
+	infixParseFn  func(ast.Expression) ast.Expression
+)
+
 type Parser struct {
 	l *lexer.Lexer
 
@@ -14,6 +19,9 @@ type Parser struct {
 
 	curToken  token.Token
 	peekToken token.Token
+
+	prefixParseFns map[token.TokenType]prefixParseFn
+	infixParseFns  map[token.TokenType]infixParseFn
 }
 
 func New(l *lexer.Lexer) *Parser {
@@ -45,6 +53,14 @@ func (p *Parser) parseProgram() *ast.Program {
 		p.nextToken()
 	}
 	return program
+}
+
+func (p *Parser) registerPrefix(tokType token.TokenType, fn prefixParseFn) {
+	p.prefixParseFns[tokType] = fn
+}
+
+func (p *Parser) registerInfix(tokType token.TokenType, fn infixParseFn) {
+	p.infixParseFns[tokType] = fn
 }
 
 func (p *Parser) parseStatement() ast.Statement {
