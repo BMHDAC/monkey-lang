@@ -98,7 +98,7 @@ func testLetStatement(t *testing.T, statement ast.Statement, name string) bool {
 }
 
 func TestIdentifierExpression(t *testing.T) {
-	input := "you_suck"
+	input := "foobar"
 
 	l := lexer.New(input)
 	p := New(l)
@@ -119,14 +119,47 @@ func TestIdentifierExpression(t *testing.T) {
 		t.Fatalf("not identifier, got %T", stmt.Expression)
 	}
 
-	if iden.Value != "you_suck" {
-		t.Fatalf("iden.Value not `you_suck`, got %s", iden.Value)
+	if iden.Value != "foobar" {
+		t.Fatalf("iden.Value not `foobar`, got %s", iden.Value)
 	}
 
-	if iden.TokenLiteral() != "you_suck" {
-		t.Fatalf("iden.TokenLiteral() not `you suck`, got %s", iden.TokenLiteral())
+	if iden.TokenLiteral() != "foobar" {
+		t.Fatalf("iden.TokenLiteral() not `foobar`, got %s", iden.TokenLiteral())
 	}
 
+}
+
+func TestIntegerLiteralExpression(t *testing.T) {
+	input := "5;"
+
+	l := lexer.New(input)
+	p := New(l)
+
+	program := p.ParseProgram()
+	checkParserError(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("len(program.Statements) not 1, got %d", len(program.Statements))
+	}
+
+	stm, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not expression statement, got %T", program.Statements[0])
+	}
+
+	literal, ok := stm.Expression.(*ast.IntegerLiteral)
+
+	if !ok {
+		t.Fatalf("stm.Expression not IntegerLiteral, got %T", stm.Expression)
+	}
+
+	if literal.Value != 5 {
+		t.Fatalf("literal.Value not 5, got %d", literal.Value)
+	}
+
+	if literal.TokenLiteral() != "5" {
+		t.Fatalf("literal.TokenLiteral() not 5, got %s", literal.TokenLiteral())
+	}
 }
 
 func checkParserError(t *testing.T, p *Parser) {
