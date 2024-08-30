@@ -30,6 +30,9 @@ func New(l *lexer.Lexer) *Parser {
 		errors: []string{},
 	}
 
+	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
+	p.registerPrefix(token.IDENT, p.parseIdentifier)
+
 	p.nextToken()
 	p.nextToken()
 
@@ -41,7 +44,7 @@ func (p *Parser) nextToken() {
 	p.peekToken = p.l.NextToken()
 }
 
-func (p *Parser) parseProgram() *ast.Program {
+func (p *Parser) ParseProgram() *ast.Program {
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
 
@@ -70,7 +73,7 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
-		return nil
+		return p.parseExpressionStatement()
 	}
 }
 
@@ -112,6 +115,32 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	return stm
 }
 
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	stm := &ast.ExpressionStatement{
+		Token: p.curToken,
+	}
+
+	stm.Expression = p.parseExpression(LOWEST)
+
+	return stm
+}
+
+func (p *Parser) parseExpression(predence int) ast.Expression {
+	prefix := p.prefixParseFns[p.curToken.Type]
+
+	if prefix == nil {
+		return nil
+	}
+
+	leftExp := prefix()
+
+	return leftExp
+}
+
+func (p *Parser) parseIdentifier() ast.Expression {
+	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+}
+
 func (p *Parser) peekTokenIs(token token.TokenType) bool {
 	return p.peekToken.Type == token
 }
@@ -138,3 +167,14 @@ func (p *Parser) peekError(token token.TokenType) {
 	msg := fmt.Sprintf("Expect token to be %s, got %s instead", token, p.peekToken.Type)
 	p.errors = append(p.errors, msg)
 }
+
+const (
+	_ int = iota
+	LOWEST
+	EQUALS
+	LESSGREATER
+	SUM
+	PRODUCT
+	PREFIX
+	CALL
+)
