@@ -642,3 +642,84 @@ func TestIfElseExpression(t *testing.T) {
 		return
 	}
 }
+
+func TestFunctionLiteralParsing(t *testing.T) {
+	input := "fn(x,y) { x + y; }"
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+
+	checkParserError(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("len(program.Statements) is not 1, got: %d", len(program.Statements))
+	}
+
+	stm, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statement[0] is not ExpressionStatement, got: %T", program.Statements[0])
+	}
+
+	function, ok := stm.Expression.(*ast.FunctionLiteral)
+	if !ok {
+		t.Fatalf("stm.Expression is not FunctionLiteral, got: %T", stm.Expression)
+	}
+
+	if len(function.Parameters) != 2 {
+		t.Fatalf("function.Parameters len is not 2, got: %d\n", len(function.Parameters))
+	}
+
+	testLiteralExpression(t, function.Parameters[0], "x")
+	testLiteralExpression(t, function.Parameters[1], "y")
+
+	if len(function.Body.Statements) != 1 {
+		t.Fatalf("function.Body.Statements is not 1, got %d\n", len(function.Body.Statements))
+	}
+
+	bodyStm, ok := function.Body.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("function.Body.Statements[0] is not ExpressionStatement, got %T", function.Body.Statements[0])
+	}
+
+	testInfixExpression(t, bodyStm.Expression, "x", "+", "y")
+}
+
+func TestFunctionParamsParsing(t *testing.T) {
+	tests := []struct {
+		input          string
+		expectedParams []string
+	}{
+		{
+			"fn() {}",
+			[]string{},
+		},
+		{
+			"fn(x) {}",
+			[]string{"x"},
+		},
+		{
+			"fn(x,y,z) {}",
+			[]string{"x", "y", "z"},
+		},
+	}
+
+	for _, tt := range tests {
+		input := tt.input
+
+		l := lexer.New(input)
+		p := New(l)
+		program := p.ParseProgram()
+		checkParserError(t, p)
+		stm := program.Statements[0].(*ast.ExpressionStatement)
+		function := stm.Expression.(*ast.FunctionLiteral)
+
+		if len(function.Parameters) != len(tt.expectedParams) {
+			t.Errorf("function.Parameters len wrong, expected: %d, got: %d", len(tt.expectedParams), len(function.Parameters))
+		}
+
+		for i, iden := range tt.expectedParams {
+			testLiteralExpression(t, function.Parameters[i], iden)
+		}
+	}
+}
