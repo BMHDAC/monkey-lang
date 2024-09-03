@@ -8,38 +8,32 @@ import (
 	"monkey/src/lexer"
 )
 
-func TestLetStatement(t *testing.T) {
-	input := `
-    let a = 0;
-    let b = 10;
-    let foobar = 6969;
-  `
-
-	l := lexer.New(input)
-	p := New(l)
-
-	program := p.ParseProgram()
-	checkParserError(t, p)
-
-	if program == nil {
-		t.Fatalf("parseProgram() returned nil")
-	}
-
-	if len(program.Statements) != 3 {
-		t.Fatalf("Got %d statements, expected: %d", len(program.Statements), 3)
-	}
-
+func TestLetStatements(t *testing.T) {
 	tests := []struct {
-		exprectedIdentifier string
+		input              string
+		expectedIdentifier string
+		expectedValue      interface{}
 	}{
-		{"a"},
-		{"b"},
-		{"foobar"},
+		{"let x = 5;", "x", 5},
+		{"let y = true;", "y", true},
+		{"let foobar = y;", "foobar", "y"},
 	}
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		program := p.ParseProgram()
+		checkParserError(t, p)
+		if len(program.Statements) != 1 {
+			t.Fatalf("program.Statements does not contain 1 statements. got=%d",
+				len(program.Statements))
+		}
+		stmt := program.Statements[0]
+		if !testLetStatement(t, stmt, tt.expectedIdentifier) {
+			return
+		}
 
-	for i, tt := range tests {
-		stm := program.Statements[i]
-		if !testLetStatement(t, stm, tt.exprectedIdentifier) {
+		val := stmt.(*ast.LetStatement).Value
+		if !testLiteralExpression(t, val, tt.expectedValue) {
 			return
 		}
 	}
