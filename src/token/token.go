@@ -81,4 +81,6 @@ const (
 	RETURN   = "RETURN"
 	IF       = "IF"
 	ELSE     = "ELSE"
+
+	STRING = "STRING"
 )
