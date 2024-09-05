@@ -90,6 +90,18 @@ func (f *Function) Inspect() string {
 	return out.String()
 }
 
+type String struct {
+	Value string
+}
+
+func (s *String) Type() ObjectType {
+	return STRING_OBJ
+}
+
+func (s *String) Inspect() string {
+	return s.Value
+}
+
 type Null struct{}
 
 func (null *Null) Type() ObjectType {
@@ -107,4 +119,5 @@ const (
 	RETURN_OBJ   = "RETURN"
 	ERROR_OBJ    = "ERROR"
 	FUNCTION_OBJ = "FUNCTION"
+	STRING_OBJ   = "STRING"
 )
