@@ -181,3 +181,59 @@ func TestReturnStatement(t *testing.T) {
 		testIntegerObject(t, evaluated, tt.expected)
 	}
 }
+
+func TestErrorHandling(t *testing.T) {
+	tests := []struct {
+		input           string
+		expectedMessage string
+	}{
+		{
+			"5 + true",
+			"type missmatch: INTEGER + BOOLEAN",
+		},
+		{
+			"5 + true; 5",
+			"type missmatch: INTEGER + BOOLEAN",
+		},
+		{
+			"-true",
+			"unknown operation: -BOOLEAN",
+		},
+		{
+			"true + false",
+			"unknown operation: BOOLEAN + BOOLEAN",
+		},
+		{
+			"5; true + false; 5",
+			"unknown operation: BOOLEAN + BOOLEAN",
+		},
+
+		{
+			"if (10 > 1) { true + false;}",
+			"unknown operation: BOOLEAN + BOOLEAN",
+		},
+		{
+			`if (10 > 1) {
+        if (10 > 1) {
+          return true + false;
+        }
+
+        return 1;
+      }`,
+			"unknown operation: BOOLEAN + BOOLEAN",
+		},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		errorObject, ok := evaluated.(*object.Error)
+		if !ok {
+			t.Errorf("No error object returned, got: %T (%+v)", evaluated, evaluated)
+			continue
+		}
+
+		if errorObject.Message != tt.expectedMessage {
+			t.Errorf("Wrong error message. Expected: %s, got: %s", tt.expectedMessage, errorObject.Message)
+		}
+	}
+}

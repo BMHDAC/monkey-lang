@@ -45,6 +45,18 @@ func (rv *ReturnValue) Inspect() string {
 	return rv.Value.Inspect()
 }
 
+type Error struct {
+	Message string
+}
+
+func (eo *Error) Type() ObjectType {
+	return ERROR_OBJ
+}
+
+func (eo *Error) Inspect() string {
+	return "ERROR: " + eo.Message
+}
+
 type Null struct{}
 
 func (null *Null) Type() ObjectType {
@@ -60,4 +72,5 @@ const (
 	BOOLEAN_OBJ = "BOOLEAN"
 	NULL_OBJ    = "NULL"
 	RETURN_OBJ  = "RETURN"
+	ERROR_OBJ   = "ERROR"
 )
