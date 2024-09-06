@@ -102,6 +102,21 @@ func (s *String) Inspect() string {
 	return s.Value
 }
 
+type (
+	BuiltinFunction func(args ...Object) Object
+	Builtin         struct {
+		Fn BuiltinFunction
+	}
+)
+
+func (bf *Builtin) Type() ObjectType {
+	return BUILTIN_OBJ
+}
+
+func (bf *Builtin) Inspect() string {
+	return "builtin function"
+}
+
 type Null struct{}
 
 func (null *Null) Type() ObjectType {
@@ -120,4 +135,5 @@ const (
 	ERROR_OBJ    = "ERROR"
 	FUNCTION_OBJ = "FUNCTION"
 	STRING_OBJ   = "STRING"
+	BUILTIN_OBJ  = "BUILTIN"
 )
