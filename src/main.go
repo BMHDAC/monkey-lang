@@ -12,8 +12,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Printf("Monkey lang. Hello: \n", user.Username)
-	fmt.Println("Type the source code")
+	fmt.Printf("Hello: %s\n", user.Username)
 	repl.Start(os.Stdin, os.Stdout)
 }
